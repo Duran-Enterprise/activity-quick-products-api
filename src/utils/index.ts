@@ -7,11 +7,27 @@ import { paginationModel, titleModel, priceModel, ratingModel } from '../models'
  * ************************************************************
  * - handles error
  */
-export const handleError = (res: Response, error: unknown) => {
+export const handleError = (res: Response, error: Error) => {
     if (error instanceof Error) {
         res.status(400).json({
-            error: error.message,
+            errors: JSON.parse(error.message),
         })
+    } else {
+        res.status(500).json({
+            error: 'Internal Server Error',
+        })
+    }
+}
+
+/**DOCU:
+ * ************************************************************
+ * - custom function for throwing new errors
+ * @param errors - array of errors
+ * @throws a new Error
+ */
+export const throwNewError = (errors: string[]) => {
+    if (errors.length > 0) {
+        throw new Error(JSON.stringify(errors))
     }
 }
 

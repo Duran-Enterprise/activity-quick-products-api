@@ -1,25 +1,33 @@
 import { PaginationProps, TitleProps, PriceProps, RatingProps } from '../types'
-import { maxPriceValue, maxRatingValue, minRatingValue } from '../utils'
+import {
+    maxPriceValue,
+    maxRatingValue,
+    minRatingValue,
+    throwNewError,
+} from '../utils'
 
 /**DOCU:
  * **********************************************************************
  * - creates a pagination model
- *
  * @param reqQuery - the request query of type PaginationProps
- *
  * @returns the values of limit and skip
  */
 export const paginationModel = (reqQuery: PaginationProps) => {
     const limit = reqQuery.limit !== undefined ? Number(reqQuery.limit) : 5
     const skip = reqQuery.skip !== undefined ? Number(reqQuery.skip) : 0
 
+    // HANDLING ERRORS
+    const errors: string[] = []
+
     if (isNaN(Number(limit)) || isNaN(Number(skip))) {
-        throw new Error('Only numbers are allowed for limit and skip values')
+        errors.push('Only numbers are allowed for limit and skip values')
     }
 
     if (limit < 0 || skip < 0) {
-        throw new Error('Cannot have negative values for limit and skip')
+        errors.push('Cannot have negative values for limit and skip')
     }
+
+    throwNewError(errors)
 
     return { limit, skip }
 }
@@ -42,22 +50,33 @@ export const titleModel = (reqQuery: TitleProps) => {
  * @returns the value of minPrice and maxPrice
  */
 export const priceModel = async (reqQuery: PriceProps) => {
+    const maxPriceValueRecord = await maxPriceValue()
+
     const minPrice = reqQuery.minPrice !== undefined ? reqQuery.minPrice : 0
 
     const maxPrice =
         reqQuery.maxPrice !== undefined
             ? reqQuery.maxPrice
-            : await maxPriceValue()
+            : maxPriceValueRecord
+
+    // HANDLING ERRORS
+    const errors: string[] = []
 
     if (isNaN(Number(minPrice)) || isNaN(Number(maxPrice))) {
-        throw new Error(
-            'Only numbers are allowed for minPrice and maxPrice values'
-        )
+        errors.push('Only numbers are allowed for minPrice and maxPrice values')
     }
 
     if (minPrice < 0) {
-        throw new Error('Cannot have a minPrice value less than zero')
+        errors.push('Cannot have a minPrice value less than zero')
     }
+
+    if (maxPrice > maxPriceValueRecord) {
+        errors.push(
+            `The maximum price on record is currently ${maxPriceValueRecord}. Please provide a lower value.`
+        )
+    }
+
+    throwNewError(errors)
 
     return { minPrice, maxPrice }
 }
@@ -69,23 +88,35 @@ export const priceModel = async (reqQuery: PriceProps) => {
  * @returns the value of minRating and maxRating
  */
 export const ratingModel = async (reqQuery: RatingProps) => {
+    const minRatingValueRecord = await minRatingValue()
+    const maxRatingValueRecord = await maxRatingValue()
+
     const minRating =
         reqQuery.minRating !== undefined
             ? reqQuery.minRating
-            : await minRatingValue()
+            : minRatingValueRecord
 
     const maxRating =
         reqQuery.maxRating !== undefined
             ? reqQuery.maxRating
-            : await maxRatingValue()
+            : maxRatingValueRecord
 
-    if (isNaN(Number(minRating)) || isNaN(Number(minRating))) {
-        throw new Error('Only numbers are allowed for minRating value')
+    // HANDLING ERRORS
+    const errors: string[] = []
+
+    if (isNaN(Number(minRating)) || isNaN(Number(maxRating))) {
+        errors.push('Only numbers are allowed for minRating value')
     }
 
-    if (minRating < 0) {
-        throw new Error('Cannot have a minRating value less than zero')
+    if (minRating < minRatingValueRecord) {
+        errors.push(`Currently no rating records below ${minRatingValueRecord}`)
     }
+
+    if (maxRating > maxRatingValueRecord) {
+        errors.push(`Currently no rating records above ${maxRatingValueRecord}`)
+    }
+
+    throwNewError(errors)
 
     return { minRating, maxRating }
 }

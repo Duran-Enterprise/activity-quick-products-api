@@ -25,7 +25,7 @@ export const getAll = async (req: Request, res: Response) => {
             products: currentProducts,
         })
     } catch (error) {
-        handleError(res, error)
+        handleError(res, error as Error)
     }
 }
 
@@ -51,7 +51,7 @@ export const getOneById = async (req: Request, res: Response) => {
 
         res.status(200).json(product)
     } catch (error) {
-        handleError(res, error)
+        handleError(res, error as Error)
     }
 }
 
@@ -78,7 +78,7 @@ export const getManyByTitle = async (req: Request, res: Response) => {
             products: currentProducts,
         })
     } catch (error) {
-        handleError(res, error)
+        handleError(res, error as Error)
     }
 }
 
@@ -108,7 +108,7 @@ export const getManyByPriceRange = async (req: Request, res: Response) => {
             products: currentProducts,
         })
     } catch (error) {
-        handleError(res, error)
+        handleError(res, error as Error)
     }
 }
 
@@ -135,7 +135,7 @@ export const getManyByBrand = async (req: Request, res: Response) => {
             products: currentProducts,
         })
     } catch (error) {
-        handleError(res, error)
+        handleError(res, error as Error)
     }
 }
 
@@ -160,7 +160,7 @@ export const getAllInStock = async (req: Request, res: Response) => {
             products: currentProducts,
         })
     } catch (error) {
-        handleError(res, error)
+        handleError(res, error as Error)
     }
 }
 
@@ -193,6 +193,6 @@ export const getManyByRatingRange = async (req: Request, res: Response) => {
             products: currentProducts,
         })
     } catch (error) {
-        handleError(res, error)
+        handleError(res, error as Error)
     }
 }
