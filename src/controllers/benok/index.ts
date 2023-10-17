@@ -1,15 +1,11 @@
 import { Request, Response } from 'express'
 import {
-    handleError,
+    handleErrorResponse,
     parseParams,
     parseQuery,
     readProductsFile,
-} from '../utils'
+} from '../../utils/benok'
 
-/**DOCU:
- * - fetches all products
- * ************************************************************
- */
 export const getAll = async (req: Request, res: Response) => {
     try {
         const products = await readProductsFile()
@@ -25,25 +21,21 @@ export const getAll = async (req: Request, res: Response) => {
             products: currentProducts,
         })
     } catch (error) {
-        handleError(res, error as Error)
+        handleErrorResponse(res, error as Error)
     }
 }
 
-/**DOCU:
- * - fetches a product by id
- * ************************************************************
- */
 export const getOneById = async (req: Request, res: Response) => {
     try {
         const { productId } = parseParams(req.params)
 
         const products = await readProductsFile()
 
-        if (isNaN(productId)) {
+        if (productId <= 0 || isNaN(productId)) {
             throw new Error('Invalid product id')
         }
 
-        if (productId < 0 || productId > products.length) {
+        if (productId > products.length) {
             throw new Error('Product does not exist')
         }
 
@@ -51,14 +43,10 @@ export const getOneById = async (req: Request, res: Response) => {
 
         res.status(200).json(product)
     } catch (error) {
-        handleError(res, error as Error)
+        handleErrorResponse(res, error as Error)
     }
 }
 
-/**DOCU:
- * - fetches products by title
- * ************************************************************
- */
 export const getManyByTitle = async (req: Request, res: Response) => {
     try {
         const products = await readProductsFile()
@@ -78,14 +66,10 @@ export const getManyByTitle = async (req: Request, res: Response) => {
             products: currentProducts,
         })
     } catch (error) {
-        handleError(res, error as Error)
+        handleErrorResponse(res, error as Error)
     }
 }
 
-/**DOCU:
- * - fetches many products by price range
- * ************************************************************
- */
 export const getManyByPriceRange = async (req: Request, res: Response) => {
     try {
         const { limit, skip, minPrice, maxPrice } = await parseQuery(req.query)
@@ -108,14 +92,10 @@ export const getManyByPriceRange = async (req: Request, res: Response) => {
             products: currentProducts,
         })
     } catch (error) {
-        handleError(res, error as Error)
+        handleErrorResponse(res, error as Error)
     }
 }
 
-/**DOCU:
- * - fetches many products by brand name
- * ************************************************************
- */
 export const getManyByBrand = async (req: Request, res: Response) => {
     try {
         const products = await readProductsFile()
@@ -135,14 +115,10 @@ export const getManyByBrand = async (req: Request, res: Response) => {
             products: currentProducts,
         })
     } catch (error) {
-        handleError(res, error as Error)
+        handleErrorResponse(res, error as Error)
     }
 }
 
-/**DOCU:
- * - fetches all in stock
- * ************************************************************
- */
 export const getAllInStock = async (req: Request, res: Response) => {
     try {
         const products = await readProductsFile()
@@ -160,14 +136,10 @@ export const getAllInStock = async (req: Request, res: Response) => {
             products: currentProducts,
         })
     } catch (error) {
-        handleError(res, error as Error)
+        handleErrorResponse(res, error as Error)
     }
 }
 
-/**DOCU:
- * - fetches many products by rating range
- * ************************************************************
- */
 export const getManyByRatingRange = async (req: Request, res: Response) => {
     try {
         const { limit, skip, minRating, maxRating } = await parseQuery(
@@ -193,6 +165,6 @@ export const getManyByRatingRange = async (req: Request, res: Response) => {
             products: currentProducts,
         })
     } catch (error) {
-        handleError(res, error as Error)
+        handleErrorResponse(res, error as Error)
     }
 }

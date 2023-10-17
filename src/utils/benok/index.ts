@@ -1,16 +1,28 @@
 import { Response } from 'express'
 import fs from 'fs/promises'
-import { ProductIdProps, ProductsProps, ReqQueryProps } from '../types'
-import { paginationModel, titleModel, priceModel, ratingModel } from '../models'
+import { ProductIdProps, ProductsProps, ReqQueryProps } from '../../types'
+import {
+    paginationModel,
+    titleModel,
+    priceModel,
+    ratingModel,
+} from '../../models/benok'
 
-/**DOCU:
- * ************************************************************
- * - handles error
- */
-export const handleError = (res: Response, error: Error) => {
+export const handleErrorResponse = (res: Response, error: Error) => {
+    let errorMessage: string | string[]
+
     if (error instanceof Error) {
+        errorMessage = error.message
+
+        try {
+            const parsedMessage = JSON.parse(errorMessage)
+            if (Array.isArray(parsedMessage)) {
+                errorMessage = parsedMessage
+            }
+        } catch (e) {}
+
         res.status(400).json({
-            errors: JSON.parse(error.message),
+            errors: errorMessage,
         })
     } else {
         res.status(500).json({
@@ -19,22 +31,12 @@ export const handleError = (res: Response, error: Error) => {
     }
 }
 
-/**DOCU:
- * ************************************************************
- * - custom function for throwing new errors
- * @param errors - array of errors
- * @throws a new Error
- */
 export const throwNewError = (errors: string[]) => {
     if (errors.length > 0) {
         throw new Error(JSON.stringify(errors))
     }
 }
 
-/**DOCU:
- * ************************************************************
- * - dynamically calculates the max price value
- */
 export const maxPriceValue = async () => {
     const products = await readProductsFile()
 
@@ -43,10 +45,6 @@ export const maxPriceValue = async () => {
     }, 0)
 }
 
-/**DOCU:
- * ************************************************************
- * - dynamically calculates the minRatingValue
- */
 export const minRatingValue = async () => {
     const products = await readProductsFile()
 
@@ -55,10 +53,6 @@ export const minRatingValue = async () => {
     }, 0)
 }
 
-/**DOCU:
- * ************************************************************
- * - dynamically calculates the maxRatingValue
- */
 export const maxRatingValue = async () => {
     const products = await readProductsFile()
 
@@ -67,23 +61,11 @@ export const maxRatingValue = async () => {
     }, 0)
 }
 
-/**DOCU:
- * ************************************************************
- * - reads the file
- *
- * @returns JSON parsed data
- */
 export const readProductsFile = async (): Promise<ProductsProps[]> => {
     const data = await fs.readFile('products.json', 'utf-8')
     return JSON.parse(data)
 }
 
-/**DOCU:
- * ************************************************************
- * - converts the limit and skip from string to number
- * @param reqQuery (req.query)
- * @returns req.query.limit and req.query.skip as Numbers
- */
 export const parseQuery = async (reqQuery: ReqQueryProps) => ({
     ...paginationModel(reqQuery),
     ...titleModel(reqQuery),
@@ -91,10 +73,6 @@ export const parseQuery = async (reqQuery: ReqQueryProps) => ({
     ...(await ratingModel(reqQuery)),
 })
 
-/**DOCU:
- * ************************************************************
- * - converts productId from string to number
- */
 export const parseParams = (reqParams: ProductIdProps) => {
     const productId = Number(reqParams.productId)
     return { productId }

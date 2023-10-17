@@ -1,17 +1,16 @@
-import { PaginationProps, TitleProps, PriceProps, RatingProps } from '../types'
+import {
+    PaginationProps,
+    TitleProps,
+    PriceProps,
+    RatingProps,
+} from '../../types'
 import {
     maxPriceValue,
     maxRatingValue,
     minRatingValue,
     throwNewError,
-} from '../utils'
+} from '../../utils/benok'
 
-/**DOCU:
- * **********************************************************************
- * - creates a pagination model
- * @param reqQuery - the request query of type PaginationProps
- * @returns the values of limit and skip
- */
 export const paginationModel = (reqQuery: PaginationProps) => {
     const limit = reqQuery.limit !== undefined ? Number(reqQuery.limit) : 5
     const skip = reqQuery.skip !== undefined ? Number(reqQuery.skip) : 0
@@ -32,23 +31,11 @@ export const paginationModel = (reqQuery: PaginationProps) => {
     return { limit, skip }
 }
 
-/**DOCU:
- * **********************************************************************
- * - generates a title model
- * @param reqQuery - the request query of type TitleProps
- * @returns the value of name
- */
 export const titleModel = (reqQuery: TitleProps) => {
     const name = reqQuery.name || ''
     return { name }
 }
 
-/**DOCU:
- * **********************************************************************
- * - generates a price model
- * @param reqQuery - the request query of type PriceProps
- * @returns the value of minPrice and maxPrice
- */
 export const priceModel = async (reqQuery: PriceProps) => {
     const maxPriceValueRecord = await maxPriceValue()
 
@@ -66,8 +53,8 @@ export const priceModel = async (reqQuery: PriceProps) => {
         errors.push('Only numbers are allowed for minPrice and maxPrice values')
     }
 
-    if (minPrice < 0) {
-        errors.push('Cannot have a minPrice value less than zero')
+    if (minPrice < 0 || maxPrice < 0) {
+        errors.push('Cannot have a price value less than zero')
     }
 
     if (maxPrice > maxPriceValueRecord) {
@@ -81,12 +68,6 @@ export const priceModel = async (reqQuery: PriceProps) => {
     return { minPrice, maxPrice }
 }
 
-/**DOCU:
- * **********************************************************************
- * - generates a rating model
- * @param reqQuery - the request query of type RatingProps
- * @returns the value of minRating and maxRating
- */
 export const ratingModel = async (reqQuery: RatingProps) => {
     const minRatingValueRecord = await minRatingValue()
     const maxRatingValueRecord = await maxRatingValue()
@@ -108,11 +89,11 @@ export const ratingModel = async (reqQuery: RatingProps) => {
         errors.push('Only numbers are allowed for minRating value')
     }
 
-    if (minRating < minRatingValueRecord) {
+    if (minRating < minRatingValueRecord || maxRating < minRatingValueRecord) {
         errors.push(`Currently no rating records below ${minRatingValueRecord}`)
     }
 
-    if (maxRating > maxRatingValueRecord) {
+    if (maxRating > maxRatingValueRecord || minRating > maxRatingValueRecord) {
         errors.push(`Currently no rating records above ${maxRatingValueRecord}`)
     }
 

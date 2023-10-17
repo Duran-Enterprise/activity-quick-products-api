@@ -22,7 +22,7 @@ export type ProductsProps = {
 }
 
 export type TitleProps = {
-    name?: string
+    name?: ProductsProps['title']
 }
 
 export type PriceProps = {
@@ -31,7 +31,7 @@ export type PriceProps = {
 }
 
 export type BrandProps = {
-    name?: string
+    name?: ProductsProps['brand']
 }
 
 export type RatingProps = {
